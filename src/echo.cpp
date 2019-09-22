@@ -14,14 +14,9 @@
 using namespace std;
 using namespace TgBot;
 
-std::ofstream white_cards, black_cards;
-
 int main() {
-    string token("TOKEN");
-
+    string token("");
     Bot bot(token);
-
-    std::vector<std::string> white_cards, black_cards;
 
     bot.getEvents().onCommand("start", [&bot](Message::Ptr message) 
     {
@@ -29,35 +24,21 @@ int main() {
                                                     " I'll be taking notes of your cards today.");
     });
 
-    bot.getEvents().onCommand("generate_expansion", [&bot, &white_cards, &black_cards](Message::Ptr message) 
+    bot.getEvents().onCommand("send_cards", [&bot](Message::Ptr message) 
     {
-        std::cout << "generating files" << std::endl;
-        bot.getApi().sendMessage(message->chat->id, "Generating files.");
 
-        std::ofstream white_cards_file, black_cards_file;
+        bot.getApi().sendMessage(message->chat->id, "Sending files. Please wait.");
 
-        white_cards_file.open(PATH_TO_WHITE, std::ios::app);
-        black_cards_file.open(PATH_TO_BLACK, std::ios::app);
-        
-        for(auto it = white_cards.begin(); it != white_cards.end(); ++it)
-        {
-            white_cards_file << *it << '\n';
-        }
+        bot.getApi().sendDocument(message->chat->id, InputFile::fromFile("white.txt", "text/plain"), "White cards");
+        bot.getApi().sendDocument(message->chat->id, InputFile::fromFile("black.txt", "text/plain"), "Black cards");
 
-        for(auto it = black_cards.begin(); it != black_cards.end(); ++it)
-        {
-            black_cards_file << *it << '\n';
-        }
-
-        white_cards_file.close();
-        black_cards_file.close();
     });
 
-    bot.getEvents().onNonCommandMessage([&bot, &white_cards, &black_cards](Message::Ptr message) {
+    bot.getEvents().onNonCommandMessage([&bot](Message::Ptr message) {
         std::cout << message->text << std::endl;
         int captured;
 
-        captured = capture_cards(message->text, black_cards, white_cards);
+        captured = capture_cards(message);
 
         switch (captured)
         { 

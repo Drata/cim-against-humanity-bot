@@ -4,7 +4,10 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <tgbot/tgbot.h>
 
-int capture_cards(std::string message, std::vector<std::string>& black_cards, std::vector<std::string>& white_cards);
+using namespace TgBot;
+
+int capture_cards(Message::Ptr message);
 
 #endif
