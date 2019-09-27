@@ -44,6 +44,9 @@ int main() {
         { 
             case 0:
                 bot.getApi().sendMessage(message->chat->id, "Your card has been saved.");
+				create_card_image(message->text);
+				bot.getApi().sendDocument(message->chat->id, InputFile::fromFile("../images/black_card.jpg", "text/plain"), "Black cards");
+				//send_image
                 break;
             case 1:
                 bot.getApi().sendMessage(message->chat->id, "Incorrect format. Use <blank> to write black cards.");

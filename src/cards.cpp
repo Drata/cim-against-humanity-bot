@@ -2,7 +2,11 @@
 #include <iterator>
 #include <algorithm>
 #include <fstream>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
 
+using namespace cv;
 
 int capture_cards(Message::Ptr message)
 {
@@ -54,4 +58,23 @@ int capture_cards(Message::Ptr message)
     }
 
     return -1;
+}
+
+std::string create_card_image(std::string message)
+{
+	Mat image;
+    image = imread("../images/CIMah.png", CV_LOAD_IMAGE_COLOR);   // Read the file
+
+    if(!image.data )                              // Check for invalid input
+    {
+        std::cout << "Could not open or find the image" << std::endl ;
+        return "";
+    }
+
+	Point org = cvPoint(image.cols * 0.1, image.rows * 0.2);
+	putText(image, message, org, FONT_HERSHEY_DUPLEX, 2, Scalar(255,255,255), 2, CV_AA);
+
+	imwrite("../images/black_card.jpg", image);
+
+	return "../images/black_card.jpg";
 }
