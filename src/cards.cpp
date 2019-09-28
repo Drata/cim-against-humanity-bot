@@ -1,10 +1,15 @@
 #include "../include/cards.h"
+
+// standard library dependencies
 #include <iterator>
 #include <algorithm>
 #include <fstream>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
+
+// opencv dependencies
+
 #include <opencv2/opencv.hpp>
+#include <opencv2/freetype.hpp>
+
 
 using namespace cv;
 
@@ -62,19 +67,54 @@ int capture_cards(Message::Ptr message)
 
 std::string create_card_image(std::string message)
 {
-	Mat image;
-    image = imread("../images/CIMah.png", CV_LOAD_IMAGE_COLOR);   // Read the file
-
-    if(!image.data )                              // Check for invalid input
-    {
-        std::cout << "Could not open or find the image" << std::endl ;
+	cv::Mat image = cv::imread( "../images/CIMah.png" );
+    
+    if( image.empty() ){
+        cv::waitKey( 0 );
         return "";
     }
 
-	Point org = cvPoint(image.cols * 0.1, image.rows * 0.2);
-	putText(image, message, org, FONT_HERSHEY_DUPLEX, 2, Scalar(255,255,255), 2, CV_AA);
+    // Create FreeType2
+    cv::Ptr<cv::freetype::FreeType2> ft2 = cv::freetype::createFreeType2();
+    
+    // Load Font Data
+    ft2->loadFontData( "../data/neue-helvetica.otf", 0 );
 
-	imwrite("../images/black_card.jpg", image);
+    // Put Text
+    std::vector<std::string> message_splitted;
+    int next_end = 17;
+    int start = 0;
 
-	return "../images/black_card.jpg";
+    while(next_end < message.size()) 
+    {
+        if(!(message.at(next_end) == ' '  ||
+             message.at(next_end - 1) == ' ')) 
+        {
+            next_end--;
+            
+            for (auto it = message.begin() + next_end -1; *it != ' '; --it)
+            {
+                next_end--;
+            }
+        }
+
+        message_splitted.push_back(std::string(message.begin() + start, 
+                                               message.begin() + next_end));
+    
+        start = next_end;
+        next_end += 17;
+    }
+
+    message_splitted.push_back(std::string(message.begin() + start, message.end()));
+
+    int i = 0;
+    for(auto it = message_splitted.begin(); it != message_splitted.end(); ++it)
+    {
+        ft2->putText(image, *it, cv::Point( 50, 75 + (50 * i)), 50, cv::Scalar( 255, 255, 255 ), -1, cv::LINE_AA, false );
+        i++;
+    }   
+
+    cv::imwrite("../images/black_card.jpg", image);
+
+    return "";
 }

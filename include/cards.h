@@ -10,5 +10,6 @@ using namespace TgBot;
 
 int capture_cards(Message::Ptr message);
 std::string create_card_image(std::string str);
+void create_all_card_image();
 
 #endif
